@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicles - AutoHub Portal</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">AutoHub Portal</div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="vehicles.html" class="active">Vehicles</a></li>
+                <li><a href="dashboard.html" id="dashboardLink" style="display:none;">Dashboard</a></li>
+                <li><a href="bookings.html" id="bookingsLink" style="display:none;">Bookings</a></li>
+                <li><a href="admin.html" id="adminLink" style="display:none;">Admin</a></li>
+                <li><a href="login.html" id="loginLink">Login</a></li>
+                <li><a href="#" id="logoutLink" style="display:none;">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Available Vehicles</h1>
+        
+        <div class="filter-section">
+            <input type="text" id="searchBox" placeholder="Search vehicles...">
+            <select id="fuelFilter">
+                <option value="">All Fuel Types</option>
+                <option value="petrol">Petrol</option>
+                <option value="diesel">Diesel</option>
+                <option value="electric">Electric</option>
+                <option value="hybrid">Hybrid</option>
+            </select>
+        </div>
+
+        <div class="vehicles-grid" id="vehiclesGrid">
+            <div class="loading">Loading vehicles...</div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/vehicles.js"></script>
+</body>
+</html>

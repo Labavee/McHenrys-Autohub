@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - AutoHub Portal</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">AutoHub Portal</div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="admin.html" class="active">Admin</a></li>
+                <li><a href="#" id="logoutLink">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Administration Dashboard</h1>
+
+        <div class="admin-tabs">
+            <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('users')">Users</button>
+            <button class="tab-btn" onclick="switchTab('vehicles')">Vehicles</button>
+            <button class="tab-btn" onclick="switchTab('bookings')">Bookings</button>
+            <button class="tab-btn" onclick="switchTab('invoices')">Invoices</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboardTab" class="tab-content active">
+            <h2>Statistics</h2>
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <h3>Total Users</h3>
+                    <div id="totalUsers" class="big-number">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Vehicles</h3>
+                    <div id="totalVehicles" class="big-number">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Available Vehicles</h3>
+                    <div id="availableVehicles" class="big-number">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending Bookings</h3>
+                    <div id="pendingBookings" class="big-number">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending Invoices</h3>
+                    <div id="pendingInvoices" class="big-number">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="usersTab" class="tab-content">
+            <h2>User Management</h2>
+            <div class="table-container">
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersBody">
+                        <tr><td colspan="5" class="loading">Loading users...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Vehicles Tab -->
+        <div id="vehiclesTab" class="tab-content">
+            <h2>Vehicle Management</h2>
+            <button class="btn btn-primary" onclick="showAddVehicleForm()">Add Vehicle</button>
+            <div id="addVehicleForm" class="form-card" style="display:none;">
+                <h3>Add New Vehicle</h3>
+                <form id="vehicleForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="make">Make *</label>
+                            <input type="text" id="make" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="model">Model *</label>
+                            <input type="text" id="model" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="year">Year *</label>
+                            <input type="number" id="year" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="vin">VIN *</label>
+                            <input type="text" id="vin" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Vehicle</button>
+                </form>
+            </div>
+            <div class="table-container">
+                <table id="vehiclesTable">
+                    <thead>
+                        <tr>
+                            <th>Make</th>
+                            <th>Model</th>
+                            <th>Year</th>
+                            <th>Status</th>
+                            <th>Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vehiclesBody">
+                        <tr><td colspan="6" class="loading">Loading vehicles...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Bookings Tab -->
+        <div id="bookingsTab" class="tab-content">
+            <h2>Booking Management</h2>
+            <div class="table-container">
+                <table id="allBookingsTable">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Vehicle</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allBookingsBody">
+                        <tr><td colspan="5" class="loading">Loading bookings...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Invoices Tab -->
+        <div id="invoicesTab" class="tab-content">
+            <h2>Invoice Management</h2>
+            <div class="table-container">
+                <table id="invoicesTable">
+                    <thead>
+                        <tr>
+                            <th>Invoice #</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoicesBody">
+                        <tr><td colspan="6" class="loading">Loading invoices...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/admin.js"></script>
+</body>
+</html>
