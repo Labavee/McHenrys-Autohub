@@ -11,7 +11,14 @@ async function loadVehicles(filters = {}) {
     if (filters.fuelType) params.append('fuel_type', filters.fuelType);
     if (params.toString()) url += '?' + params.toString();
     
-    const vehicles = await apiCall('GET', url);
+    const response = await apiCall('GET', url);
+    const vehicles = Array.isArray(response?.data?.vehicles)
+        ? response.data.vehicles
+        : Array.isArray(response?.vehicles)
+            ? response.vehicles
+            : Array.isArray(response)
+                ? response
+                : [];
     displayVehicles(vehicles);
 }
 

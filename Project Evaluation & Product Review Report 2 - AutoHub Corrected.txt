@@ -1,0 +1,305 @@
+1. Features Implemented
+
+The AutoHub Portal is a full-stack car sales and servicing system developed as a two-week, solo project. The product implements the case-study requirement for a portal that supports customers, administrators and service operations. The application is not only a static website: it has a Flask REST API, SQLAlchemy database models, JSON responses, JWT authentication, protected administration routes and a browser-based frontend built with HTML, CSS and vanilla JavaScript. My main objective was to deliver a working minimum viable product while also responding to seven change requests raised during the sprint.
+
+The original functional scope covered customer management, secure administration, vehicle and service catalogue management, category listing, text search, test-drive or service booking, and invoicing. These were implemented through separate route modules such as auth_routes.py, vehicle_routes.py, service_routes.py, booking_routes.py and invoice_routes.py. The frontend provides public navigation, login and registration pages, vehicle browsing, booking, invoice and admin screens. The screenshots below show the visible product interface and the report captions identify the relevant evidence.
+
+Figure 1: Public home page. Label A shows the navigation routes for home, vehicles, login and registration; Label B shows the product value statement and Browse Vehicles call to action.
+
+Authentication and authorisation are implemented through the /api/auth/register and /api/auth/login endpoints. Passwords are not stored directly; the User model uses Werkzeug password hashing utilities, while JWT tokens protect profile, booking, invoice and administration operations. User roles include customer, admin and mechanic, allowing the product to separate ordinary customer journeys from privileged management functions. This is important for the assessment because it demonstrates that the project considered security and access control as a product feature rather than an afterthought.
+
+Figure 2: Login screen. Label A identifies the authentication form; Label B highlights the required username and password credentials that connect to the JWT login endpoint.
+
+The product management features are centred on vehicles, services, customers, bookings and invoices. Administrators can create, update and delete vehicle and service records through protected API endpoints. Customers can browse available vehicles, filter by fuel type, search from the frontend and create bookings. Invoices and invoice items are represented in the database so that service work and sales activity can be converted into billing records. The database includes models for User, Customer, Vehicle, Service, ServiceBooking, Inventory, Invoice and InvoiceItem, making the implementation broad enough to reflect an actual garage or dealership workflow.
+
+Figure 3: Vehicle listing page. Label A shows search and fuel filter controls; Label B indicates the vehicle grid area populated by the backend API.
+
+The change requirements were handled using a formal impact assessment. The first four high-value changes became sprint scope: advanced search, intelligent ranking, user reviews and additional service-booking capability. Three later extension changes were also implemented in the backend: administrative monitoring, discount and voucher management, and CSV/JSON bulk import. The decision documents show that promotional placement was initially deferred because it had high business value but high complexity; later backend extensions show that the same change-management discipline was applied when capacity increased. This satisfies the assignment requirement to highlight change requirements, because the report links the requested changes to actual files, routes and models.
+
+A notable product-management decision was to treat the change requests as business outcomes rather than isolated coding tasks. Search and ranking answer the customer problem of finding the right vehicle quickly. Reviews answer the trust problem by allowing customers to judge vehicle and service quality from previous experience. Monitoring answers the administrator problem of knowing whether the service is healthy. Discounts and bulk import support operational efficiency because a dealer can run campaigns and load stock data without typing every record manually. This framing made the sprint backlog easier to defend academically: each change has a business reason, a technical implementation and a test or verification trail.
+
+Advanced search: search_routes.py provides vehicle search, suggestions, popular searches, analytics and click logging.
+
+Intelligent ranking: ranking_routes.py calculates and exposes ranking scores using price, popularity, recency and inventory status factors.
+
+Reviews and ratings: review_routes.py supports authenticated review submission, public display, moderation, approval, rejection, edit, delete and analytics.
+
+Monitoring, discounts and import: monitoring_routes.py, discount_routes.py and import_routes.py extend the MVP into operational administration.
+
+2. Testing
+
+The testing strategy followed a practical testing-pyramid approach. Unit tests and model tests were intended to give fast feedback on validation, password handling, model relationships and utility functions. API-level integration tests were used for routes that combine authentication, database access and JSON responses. Manual browser testing supported the frontend because the frontend is a static JavaScript client rather than a component framework with a dedicated UI test runner. The project documentation also includes an API_TESTING.md guide for manual cURL or Postman checks, including authentication, vehicle creation, booking and invoice examples.
+
+The most useful testing principle in this project was risk-based selection. Authentication, role checks, review moderation and booking validation were treated as high-risk because failure could expose private data, allow unauthorised administration or create invalid operational records. Cosmetic frontend behaviour was tested more manually because it has lower data-integrity impact. This is not a reason to ignore frontend testing, but it explains why limited sprint time was focused on backend behaviours that protect the product's correctness.
+
+Test-driven development was applied most clearly where behaviour could be specified before user interface work: authentication validation, password rules, role-based access, review submission, moderation logic, search permissions and booking validation. The Day 3-5, Day 6-7 and Day 8-9 reports record the intended red-green-refactor rhythm: define the user story, write or identify the expected test case, implement the route or model behaviour, then rerun tests and document the outcome. In practice, the project also used test-after development where the product had to move quickly, especially for frontend pages and later extension endpoints.
+
+Test ID
+
+Purpose
+
+Expected Result
+
+Status
+
+TC-001
+
+Register a valid user through /api/auth/register
+
+User created; password stored as hash
+
+Implemented
+
+TC-002
+
+Login with valid credentials
+
+JWT token returned and user data included
+
+Implemented
+
+TC-003
+
+Customer attempts admin endpoint
+
+403 forbidden or admin denial
+
+Passing in admin tests
+
+TC-004
+
+Admin lists and edits users
+
+User records returned and role changes accepted
+
+Passing in user-management tests
+
+TC-005
+
+Submit invalid review rating
+
+Validation error returned
+
+Passing in review tests
+
+TC-006
+
+Vehicle search with filters
+
+Filtered list returned with pagination metadata
+
+Implemented; fixture errors remain
+
+TC-007
+
+Create service booking with missing fields
+
+400 validation response
+
+Passing
+
+I reran the test suite during preparation of this report to avoid relying only on earlier summary documents. A broad pytest discovery run first failed because two UTF-16 text result files, test_output.txt and test_results.txt, were collected as tests and could not be decoded as UTF-8. Rerunning against the tests folder collected 124 tests. The current result was 27 passed, 1 failed and 96 setup errors, with measured coverage of 40 percent. The dominant root cause is a fixture/configuration mismatch: tests/conftest.py passes the TestingConfig class into create_app(), while app/__init__.py expects a string key such as 'testing'. This is a test infrastructure defect rather than proof that every route is broken, but it is still a real quality issue.
+
+The strongest tested area is the review and moderation system. The Day 10 report records passing cases for review submission, invalid rating handling, duplicate review prevention, public review display, pending review retrieval, approval, rejection, editing and deletion. Admin user-management and authorisation tests also pass in the documented run. However, the automated coverage is not yet at the professional threshold originally targeted in the sprint plan. A realistic final quality gate would therefore include fixing the pytest fixture, excluding generated .txt outputs from collection with pytest.ini, replacing SQLAlchemy Query.get() calls with Session.get(), and rerunning coverage before final release.
+
+3. Product Issues & Bug Tracking
+
+Issue and bug management was handled through project documents rather than an external tracker. CHANGE_REQUEST_ANALYSIS.md records the incoming change requests, business value, complexity, stakeholder impact, database impact, API impact and risk level. TWO_WEEK_SPRINT_PLAN.md and DAILY_STANDUP.md then translate the work into sprint activity, while Day 3-5, Day 6-7, Day 8-9 and Day 10 reports act as status evidence. This was appropriate for a solo developer coursework project because it kept the evidence close to the codebase and made the product-management trail auditable.
+
+The issue process also separated defects from enhancements. Defects were matters where the current product did not meet an agreed requirement, such as a failed validation path or broken test setup. Enhancements were valuable additions, such as promotional placement or richer monitoring, that could be accepted, negotiated or deferred without making the MVP invalid. This distinction prevented the sprint from becoming unrealistic and helped explain why some work was implemented immediately while other work moved into Phase 2.
+
+Issue
+
+Priority
+
+Resolution or Status
+
+Evidence
+
+CR-001 Advanced search
+
+High
+
+Implemented in search_routes.py with suggestions and analytics
+
+Change analysis and Day 6-7 report
+
+CR-002 Intelligent ranking
+
+High
+
+Implemented in ranking_routes.py with recalculation endpoints
+
+Day 6-7 report
+
+CR-003 Promotional placement
+
+Medium
+
+Deferred from MVP due to high complexity and UX risk
+
+MoSCoW matrix
+
+CR-004 Reviews and ratings
+
+High
+
+Implemented with moderation and analytics
+
+Day 8-9 validation
+
+CR-005 Monitoring
+
+Medium
+
+Implemented as later backend extension
+
+Complete sprint report
+
+CR-006 Discounts/vouchers
+
+Medium
+
+Implemented as later backend extension
+
+Project completion summary
+
+CR-007 Bulk import
+
+Medium
+
+Implemented with import jobs and duplicate checks
+
+Import route and tests
+
+BUG-TEST-001
+
+High
+
+Pytest fixture passes class rather than config key; fix required
+
+Latest test run
+
+Prioritisation used a MoSCoW style decision process. Search, ranking and reviews were treated as Must or high-value Should items because they improve discovery, trust and conversion. Promotional placement was deferred because it introduced marketing complexity and could damage user experience if rushed. Monitoring, discounts and import were later added as admin extensions once the core implementation was in place. This demonstrates sensible scope control: not every request was accepted immediately, and the report can justify why.
+
+The main weakness is that the issue process is document-led rather than tool-led. There is no rich issue history with separate issue numbers, comments, assignees and closure dates. For a solo academic project this is acceptable, but a professional team would move the same register into GitHub Issues, GitLab or Jira, attach commits to each ticket and require confirmation testing before closure.
+
+4. Best Practice & Quality Assurance
+
+Quality assurance was built around documented process, security controls, modular code organisation and repeatable tests. The project uses a walking-skeleton approach: the Flask application factory, database connection, route registration and frontend pages were established early, then features were added in vertical slices. This reduced integration risk because each feature had to connect through the same layers: browser page, API endpoint, model and database. The ADR document records key decisions such as choosing Flask and SQLAlchemy for rapid delivery, using JWT for stateless authentication and keeping the design three-tier rather than prematurely moving to microservices.
+
+Another quality practice was traceability. Requirements were not left as a general wish list; they were broken into user stories, acceptance criteria, complexity estimates and dependencies. The change analysis then extended that traceability by adding stakeholder impact and technical impact. This matters because software quality is partly about proving why the product is shaped the way it is. A marker or maintainer can follow the path from requirement, to sprint plan, to code module, to test evidence and finally to post-mortem reflection.
+
+Security practices include password hashing, JWT-protected routes, role-based administration checks, CORS configuration and a .gitignore that excludes .env, database files, logs, coverage files, virtual environments and local artifacts. Sensitive configuration is therefore kept out of version control. Validation is applied in route handlers and utility functions for email, password strength, required fields, review rating boundaries and duplicate prevention. These controls align with common OWASP concerns such as broken access control, weak authentication and accidental exposure of secrets.
+
+The project also demonstrates maintainability practices. Route modules are separated by domain, which makes it easier to find and test behaviour. Documentation is unusually complete: development guide, API testing guide, architecture decisions, sprint summaries, change-request analysis and final verification reports all support future maintainers. Self-review checklists appear in the sprint plan and cover tests, hardcoded credentials, response formats, validation and documentation.
+
+The QA process is not perfect. There is no automated continuous integration pipeline in the repository, and the current git history has only one commit. The latest test run also shows that the test suite needs configuration repair before it can be used as a reliable release gate. These weaknesses are important because quality assurance is not just having tests; it is having tests that run consistently. My quality recommendation is to add pytest.ini, fix the create_app test fixture, add a GitHub Actions workflow, and require a clean test and coverage result before tagging the coursework submission.
+
+5. Architectural and Software Design Patterns
+
+The product follows a three-tier architecture. The presentation tier is the frontend directory, containing static HTML pages, a shared CSS stylesheet and JavaScript modules such as api.js, auth.js, vehicles.js, bookings.js, invoices.js and admin.js. The application tier is the Flask backend, organised through an app factory in app/__init__.py and domain blueprints in app/routes. The data tier is SQLAlchemy using SQLite for development, with configuration support for SQL Server in production. This meets the assignment requirement for evidence of MVC or a variation and database implementation.
+
+The backend is best described as an MVC-style REST architecture. SQLAlchemy model classes are the Model layer. Blueprint route functions act as Controllers because they receive HTTP input, validate it, call database operations and return JSON. The View layer is split: JSON responses are the API view for programmatic clients, while the frontend HTML and JavaScript render the user-facing browser view. It is not a pure classical MVC desktop application, but it is an appropriate web variation.
+
+The database design is relational and deliberately normalised around business entities. Users can be linked to customers; vehicles can be linked to customers, services, bookings, reviews, ranking metrics and discount records; invoices have invoice items. This avoids storing unrelated information in one large table and makes later reporting possible. For example, review analytics can be calculated per vehicle, discounts can be applied to vehicles or services, and service bookings can be queried by customer, vehicle or status.
+
+Several patterns support the design. The application factory pattern allows the Flask app to be created with different configurations for development, testing and production. Blueprints provide modular controllers by domain. Decorators such as jwt_required() and admin_required apply cross-cutting security checks without repeating role logic in every route. SQLAlchemy provides an Active Record style, where model classes represent tables and expose persistence behaviour. The standard JSON response shape also acts as a simple contract between backend and frontend.
+
+Layer
+
+Implementation Evidence
+
+Responsibility
+
+Presentation
+
+frontend/pages and frontend/js
+
+Navigation, forms, vehicle listing and admin screens
+
+Application
+
+backend/app/routes/*.py
+
+REST controllers, validation, role checks and JSON responses
+
+Domain/Data
+
+backend/app/models.py
+
+Users, vehicles, services, bookings, invoices, reviews and extensions
+
+Configuration
+
+backend/config.py
+
+Development, production and testing database settings
+
+The design is scalable enough for coursework and a small business MVP. The main architectural risks are the absence of a dedicated service layer for complex business rules, route functions that may grow too large over time, and SQLite's limits under concurrent production use. The ADR already anticipates SQL Server as a production option, which is a sensible migration path.
+
+6. Version Control
+
+Git was used for version control and the repository contains 87 tracked files in the current initial commit. The .gitignore file is appropriate for a Python/Flask project because it excludes virtual environments, pycache files, local databases, .env files, logs, coverage outputs and temporary artifacts. The .gitattributes file also helps normalise line endings, which is useful on Windows coursework machines.
+
+Version control was also useful as a boundary between product artifacts and local machine artifacts. The virtual environments and SQLite database are present on disk for development, but they are excluded from git so another developer receives source code, tests and documentation rather than machine-specific generated files. This supports repeatability and reduces the risk of accidentally submitting secrets or large binaries.
+
+The version-control evidence is mixed. On the positive side, the repository is initialised, the full source tree and documentation set are tracked, and git status shows only two currently modified frontend vehicle files. The initial commit records 23,574 insertions across backend, frontend, tests and documentation, which proves that the project is under source control. The change-request documents also provide a written change-management trail, connecting new requirements to implementation planning.
+
+However, effective professional version control should show smaller, meaningful commits over time: for example, one commit for authentication, one for vehicles, one for bookings, one for search, one for reviews and one for monitoring/discount/import extensions. A single large commit reduces traceability and makes rollback difficult. In future work I would use feature branches with names such as feature/authentication, feature/search-ranking and feature/reviews, then merge each branch only after tests and self-review.
+
+Evidence
+
+Current State
+
+Evaluation
+
+Repository
+
+main branch with initial commit 688e4ad
+
+Basic version control present
+
+Tracked files
+
+87 files
+
+Source, tests and documentation captured
+
+Ignored files
+
+.env, .db, logs, coverage and venv excluded
+
+Good security and hygiene
+
+Commit granularity
+
+One large commit
+
+Needs improvement for professional traceability
+
+7. Post-Mortem
+
+Overall, the product is close to what the case study required. It delivers a working architecture for a car sales and servicing portal, covers the main user roles, supports inventory and service workflows, implements authentication and administration, and responds to change requirements with search, ranking, reviews, monitoring, discounts and import capability. The product is strongest as a backend/API and project-management submission because the codebase and documents show breadth, planning and reflection.
+
+The product was mostly built in the correct way for a two-week solo sprint. Starting with a walking skeleton was the right decision because it made integration visible from the beginning. Using Flask and SQLAlchemy was also suitable: the stack is lightweight, understandable and fast to develop. The modular blueprint structure made the backend easier to extend when change requests arrived. The decision to document architecture and change impact was valuable because it turned the project from a coding exercise into a managed software-engineering project.
+
+The main architectural flaw is that business logic is concentrated inside route handlers. This is manageable at coursework scale, but search ranking, discount rules, import processing and review moderation would be easier to test and maintain if moved into service modules. A second weakness is that some route modules use SQLAlchemy Query.get(), which now raises deprecation warnings under SQLAlchemy 2.x. A third issue is that the frontend currently depends on live API responses, so when the backend is unavailable the vehicle grid remains in a loading state. Better error states and seeded demo data would improve the product demo.
+
+From a security viewpoint, the project makes several correct choices but still needs production hardening. JWT secrets and database URLs should be provided through environment variables, debug mode must be disabled in production, CORS should be restricted to known frontend origins, and admin endpoints should be reviewed for consistent role enforcement. Rate limiting, refresh-token rotation, password reset emails and audit logging would also improve the security story. The current .gitignore helps prevent secrets and local databases from being committed, which is a strong baseline.
+
+Scalability is adequate for a small dealership demo but would need work for real usage. SQLite is convenient for development but should be replaced by SQL Server or PostgreSQL in production. Search and ranking calculations may need indexing or cached scores as inventory grows. Bulk import should run asynchronously for large files, with background jobs and progress reporting. Monitoring endpoints are a useful start, but production observability would also include structured logs, alert thresholds and dashboard visualisation.
+
+The biggest lesson from the project is that implementation speed and evidence quality must be balanced. I produced many features and extensive documentation, but the latest test run shows that automated verification can fall behind when configuration changes are not kept aligned with fixtures. That is a genuine professional lesson: a feature is not fully done until its tests are reliable in a clean environment. Another lesson is that change management is easier when requests are assessed before coding. The MoSCoW analysis prevented every stakeholder request from entering the sprint blindly.
+
+The project also changed my understanding of full-stack responsibility. As the solo developer I could not treat frontend, backend, database, testing and project management as separate concerns owned by other people. A small change to a model affected routes, tests, frontend assumptions and documentation. This made the role more demanding, but it also made the learning more valuable because I had to think about the product as a whole system rather than a set of disconnected programming exercises.
+
+My further development priorities are clear. First, repair pytest configuration and raise coverage above the planned threshold. Second, add a CI workflow so every push runs the same checks. Third, refactor heavy route handlers into service classes and repositories. Fourth, improve frontend error handling, accessibility and responsive layout. Fifth, strengthen git practice with incremental commits and feature branches. Finally, prepare the required CW1B demo video with a narrated walkthrough: introduction as solo developer and project manager, login, vehicle browsing, admin management, bookings, database operations, change-request features, code review of key route/model files, known defects and security considerations.
+
+In conclusion, AutoHub Portal demonstrates a credible full-stack development journey. It is not perfect, and the report should not pretend that it is. The product has strong functional breadth, clear evidence of requirements and change control, and a sound architecture for the assignment. Its remaining weaknesses - especially test configuration, commit granularity and production hardening - are exactly the kind of critical reflection expected in a project evaluation and product review.
+
+Appendices
+
+Appendix A - Evidence files used: PROJECT_REQUIREMENTS.md, CHANGE_REQUEST_ANALYSIS.md, ARCHITECTURE_DECISION_RECORD.md, TWO_WEEK_SPRINT_PLAN.md, DAILY_STANDUP.md, DAY_10_TEST_EXECUTION_REPORT.md, FINAL_CONFIRMATION_ALL_CHANGES_IMPLEMENTED.md, backend/app/models.py, backend/app/routes/*.py and frontend/pages/*.html.
+
+Appendix B - Demo video checklist: open with name, student ID and role; show the running product; demonstrate login, vehicle browsing, search/filter, bookings, admin screens and selected backend code; discuss change requirements; show test output and known defects; close with lessons learned and future work.
